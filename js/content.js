@@ -9,7 +9,11 @@ chrome.runtime.onMessage.addListener((request) => {
     var focusedElement = document.activeElement;
 
     function appendJames() {
-      focusedElement.value = focusedElement.value + " James";
+      if(focusedElement.tagName.toLowerCase() == 'div' || focusedElement.tagName.toLowerCase() == 'span') {
+        focusedElement.innerHTML = focusedElement.innerHTML + " James";
+      } else {
+        focusedElement.value = focusedElement.value + " James";
+      }
     }    
 
     function createRightSideModal() {
@@ -19,23 +23,29 @@ chrome.runtime.onMessage.addListener((request) => {
         modal.style.position = 'fixed';
         modal.style.top = '0';
         modal.style.right = '0';
-        modal.style.width = '50%';
+        modal.style.width = '300px';
         modal.style.height = '100%';
         modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
         modal.style.zIndex = '1';
 
+        innerDiv = document.createElement('div');
+        innerDiv.style.textAlign = 'center';
+        innerDiv.style.marginTop = '40px';
+        
         var exitButton = document.createElement('button');
         exitButton.textContent = 'Exit';
-        exitButton.style.position = 'absolute';
-        exitButton.style.top = '0';
+        exitButton.style.width = '200px';
+        exitButton.style.height = '30px';
         exitButton.style.right = '0';
+      
         exitButton.onclick = () => {
           modal.style.display = 'none';
           if (intervalId !== null) clearInterval(intervalId);
           intervalId = null;
         };
 
-        modal.appendChild(exitButton);
+        modal.appendChild(innerDiv);
+        innerDiv.appendChild(exitButton);
         document.body.appendChild(modal);
     }
 
