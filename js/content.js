@@ -58,7 +58,7 @@ chrome.runtime.onMessage.addListener((request) => {
         audio_started = true;
     }
 
-    function checkspace () {
+    function checkspace() {
       if (keydown) { return; }
       var mytime = new Date().getTime();
       var diff = mytime-idletime;
@@ -169,13 +169,13 @@ chrome.runtime.onMessage.addListener((request) => {
         code['.-...'] = '<u>AS</u>';
         code['-...-'] = '=';
 
-      intervalId = window.setInterval("checkspace();", 3*dotlength);
+      intervalId = window.setInterval(checkspace, 3*dotlength);
 
 
       function down () {
-            if (!audio_started) {
-                init_audio();
-            }
+        if (!audio_started) {
+            init_audio();
+        }
         time = new Date().getTime();
         checkspace();
         keydown = 1;
@@ -219,14 +219,15 @@ chrome.runtime.onMessage.addListener((request) => {
       innerDiv.style.textAlign = 'center';
       innerDiv.style.marginTop = '40px';
 
-      var test = document.createElement('button');
-      test.id = "test";
-      test.style.display = "none";
+      var image = new Image();
+      image.width = 300;
+      image.src = "https://scoutlife.org/wp-content/uploads/2007/02/morsecode-1.jpg";
       
       var exitButton = document.createElement('button');
       exitButton.textContent = 'Exit';
       exitButton.style.width = '200px';
       exitButton.style.height = '30px';
+      exitButton.style.marginTop = "100px";
 
       exitButton.onclick = () => {
         if (intervalId !== null) clearInterval(intervalId);
@@ -239,7 +240,7 @@ chrome.runtime.onMessage.addListener((request) => {
       };
 
       modal.appendChild(innerDiv);
-      modal.appendChild(test);
+      innerDiv.appendChild(image);
       innerDiv.appendChild(exitButton);
       document.body.appendChild(modal);
     }
