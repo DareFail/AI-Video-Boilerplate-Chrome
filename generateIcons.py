@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+
+import sys
+from PIL import Image
+from PIL import ImageOps
+
+'''
+python3 -m venv .venv
+source .venv/bin/activate
+pip install Pillow 
+python3 generateIcons.py images/icon128.png
+'''
+
+def usage():
+    print('usage: python3 generateIcon.py <src_image>')
+
+
+def main(filename):
+    icon_sizes = (16, 19, 32, 38, 48, 128)
+    src_image = Image.open(filename, 'r')
+
+    for size in icon_sizes:
+        icon = src_image.resize((size, size), Image.LANCZOS)
+        icon.save('icon{size}.png'.format(size=size))
+        if size == 19:
+            grayscale_icon = ImageOps.grayscale(icon)
+            grayscale_icon.save('icon{size}-disable.png'.format(size=size))
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        usage()
+        sys.exit(1)
+
+    filename = sys.argv[1]
+    main(filename)
