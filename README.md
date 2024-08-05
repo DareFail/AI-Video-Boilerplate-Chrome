@@ -39,11 +39,20 @@ publishable_key="YOUR_ROBOFLOW_KEY_HERE"
 
 1. Go to the url: chrome://extensions/
 
-2. Turn on developer mode
+   <img width="169" alt="url" src="https://github.com/user-attachments/assets/6665cc6e-0434-409a-95c7-212f9be1cc9f">
 
-3. Load unpacked
 
-4. Open a new tab
+3. Turn on developer mode
+
+   <img width="171" alt="developermode" src="https://github.com/user-attachments/assets/6f26110b-2990-4faa-9a79-2da5594d6e50">
+
+
+5. Load unpacked
+
+   <img width="154" alt="loadunpacked" src="https://github.com/user-attachments/assets/8db2dec6-46ed-49e4-8534-5816de93ba2b">
+
+
+7. Open a new tab
 
   
 
@@ -70,9 +79,8 @@ python3 generateIcons.py images/icon128.png
 
 ## Included Templates
 
-Priva-see - Pauses, mutes, and blurs any media when you look away.
-
-How to use: On any tab, right click "Priva-see"
+Privasee: Pauses, mutes, and blurs any media when you look away.
+- How to use: On any tab, right click "Priva-see"
 
 
 ## Acknowledgements
