@@ -54,9 +54,9 @@ If you to submit this as a public chrome extension in the store:
 1. Add a ROBOFLOW_API_KEY in content.js
 
 2. Generate Icons for Chrome Extension
- - a. Put in a 128x128 image in the images folder and call it icon128.png
+ - Put in a 128x128 image in the images folder and call it icon128.png
 
-- b.
+- Run Python
 ```
 python3 -m venv .venv
 source .venv/bin/activate
@@ -64,7 +64,7 @@ pip install Pillow
 python3 generateIcons.py images/icon128.png
 ```
 
-- c. Then put all images in the images folder.
+- Then put all images in the images folder.
 
   
 
