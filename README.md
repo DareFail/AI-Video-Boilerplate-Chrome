@@ -37,7 +37,7 @@ publishable_key="YOUR_ROBOFLOW_KEY_HERE"
 
 ### Installation
 
-1. Go to chrome://extensions/
+1. Go to the url: chrome://extensions/
 
 2. Turn on developer mode
 

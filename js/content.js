@@ -39,7 +39,7 @@ var ctx;
 
 const inferEngine = new inferencejs.InferenceEngine();
 var modelWorkerId = null;
-var publishable_key = "ROBOFLOW_API_KEY";
+var publishable_key = "rf_l8GLzZgLQL6gZLAin1iU";
 
 
 
@@ -174,7 +174,10 @@ chrome.runtime.onMessage.addListener((request) => {
             mediaStream = null;
         }
         modal.style.display = 'none';   
-        document.body.style.filter = 'blur(0px)';
+        //document.body.style.filter = 'blur(0px)';
+        var element = document.getElementById("coverDiv");
+        element.parentNode.removeChild(element);
+
         chrome.runtime.sendMessage({command: "unmuteTab"});
  
          
@@ -253,7 +256,33 @@ chrome.runtime.onMessage.addListener((request) => {
         var gazeCoords = estimateCanvasCoordinates(prediction.leftEye.x, prediction.leftEye.y, prediction.pitch, prediction.yaw)
     
         if (gazeCoords == "NONE") {
-          document.body.style.filter = 'blur(20px)';
+          //document.body.style.filter = 'blur(20px)';
+
+          var coverDiv = document.getElementById("coverDiv");
+          if(coverDiv) {
+            coverDiv.style.display = 'block';
+          } else {
+            var div = document.createElement("div");
+            div.id = "coverDiv";
+            var img = document.createElement("img");
+            img.src = chrome.runtime.getURL("media/54.png");
+
+            // set the image styles including width and height
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.position = "fixed";
+            // set position of the image in the div
+            img.style.left = "0";
+            img.style.top = "0";
+            img.style.zIndex = "9999";
+
+            // add image as a child to div
+            div.appendChild(img);
+
+            // add div as a child to body
+            document.body.appendChild(div);
+          }
+
           chrome.runtime.sendMessage({command: "muteTab"});
 
           const audios = document.getElementsByTagName('audio');
@@ -279,7 +308,13 @@ chrome.runtime.onMessage.addListener((request) => {
           ctx.strokeStyle = 'red';
           ctx.stroke();
 
-          document.body.style.filter = 'blur(0px)';
+          //document.body.style.filter = 'blur(0px)';
+          var coverDiv = document.getElementById("coverDiv");
+          if(coverDiv) {
+            coverDiv.style.display = 'none';
+          }
+
+
           chrome.runtime.sendMessage({command: "unmuteTab"});
 
           const audios = document.getElementsByTagName('audio');

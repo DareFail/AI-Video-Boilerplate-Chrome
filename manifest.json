@@ -22,5 +22,11 @@
       "matches": ["<all_urls>"],
       "js": ["js/inferencejs.js", "js/content.js"]
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [ "media/excel.png" ],
+      "matches": [ "<all_urls>" ]
+    }
   ]
 }
