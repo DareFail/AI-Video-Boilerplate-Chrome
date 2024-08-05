@@ -265,7 +265,7 @@ chrome.runtime.onMessage.addListener((request) => {
             var div = document.createElement("div");
             div.id = "coverDiv";
             var img = document.createElement("img");
-            img.src = chrome.runtime.getURL("media/54.png");
+            img.src = chrome.runtime.getURL("media/excel.png");
 
             // set the image styles including width and height
             img.style.width = "100%";
