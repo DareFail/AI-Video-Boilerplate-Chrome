@@ -4,13 +4,6 @@ import sys
 from PIL import Image
 from PIL import ImageOps
 
-'''
-python3 -m venv .venv
-source .venv/bin/activate
-pip install Pillow 
-python3 generateIcons.py images/icon128.png
-'''
-
 def usage():
     print('usage: python3 generateIcon.py <src_image>')
 

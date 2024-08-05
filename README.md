@@ -1,15 +1,101 @@
-# jamesegraph
+# AI-video-boilerplate-chrome
 
-## Go to chrome://extensions/
-## Turn on developer mode
-## Load unpacked
+  This is a completely free Live AI Video Chrome Extension Boilerplate for you to play with.  
 
-## Go to a url and right click "Jamesegraph"
+There are more live video boilerplates at: [https://github.com/DareFail/AI-Video-Boilerplate-Simple](https://github.com/DareFail/AI-Video-Boilerplate-Simple)
 
 
-# Virtual Environment
+## Features
 
+-  **Frontend**: Plain Javascript
+
+-  **Live Video**: From your webcam, desktop, browser tab, or a local .mp4 or .mov file
+
+-  **AI Vision**: Integrated with Roboflow (sponsored project)
+
+  
+
+## Getting Started
+
+  
+This is a template for Chrome Extensions that uses live AI video on your webcam, desktop, and browser tabs.
+  
+
+### Prerequisites
+
+  
+
+1. Get a free API key from [Roboflow](https://roboflow.com/) to use their vision models.
+
+2. Replace "ROBOFLOW_API_KEY" in content.js
+
+```
+
+ROBOFLOW_API_KEY="YOUR_ROBOFLOW_KEY_HERE"
+
+```
+
+### Installation
+
+# 1. Go to chrome://extensions/
+
+# 2. Turn on developer mode
+
+# 3. Load unpacked
+
+# 4. Open a new tab
+
+  
+
+### Deployment to Chrome
+
+If you to submit this as a public chrome extension in the store:
+
+# 1. Add a ROBOFLOW_API_KEY in content.js
+
+# 2. Generate Icons for Chrome Extension
+Put in a 128x128 image in the images folder and call it icon128.png
 ```
 python3 -m venv .venv
 source .venv/bin/activate
+pip install Pillow 
+python3 generateIcons.py images/icon128.png
 ```
+Then put all images in the images folder.
+
+  
+
+## Included Templates
+
+Priva-see - Pauses, mutes, and blurs any media when you look away.
+How to use: On any tab, right click "Priva-see"
+
+
+## Acknowledgements
+
+  
+
+- Thanks to Roboflow for sponsoring this project. Get your free API key at: [Roboflow](https://roboflow.com/)
+
+  
+
+## License
+  
+
+Distributed under the APACHE 2.0 License. See `LICENSE` for more information.
+
+  
+
+## Contact (feel free to ask questions!)
+
+  
+
+Twitter: [@darefailed](https://twitter.com/darefailed)
+
+  
+
+Youtube: [How to Video coming soon](https://www.youtube.com/@darefail)
+
+  
+
+Project Link: [https://github.com/DareFail/AI-Video-Boilerplate-Simple](https://github.com/DareFail/AI-Video-Boilerplate-Simple)

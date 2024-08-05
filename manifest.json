@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Jamesegraph",
+  "name": "Privasee",
   "version": "1.0",
   "icons": {
     "16": "images/icon16.png",
@@ -20,7 +20,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["js/content.js"]
+      "js": ["js/inferencejs.js", "js/content.js"]
     }
   ]
 }
