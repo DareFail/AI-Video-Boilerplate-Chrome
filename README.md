@@ -31,19 +31,19 @@ This is a template for Chrome Extensions that uses live AI video on your webcam,
 
 ```
 
-ROBOFLOW_API_KEY="YOUR_ROBOFLOW_KEY_HERE"
+publishable_key="YOUR_ROBOFLOW_KEY_HERE"
 
 ```
 
 ### Installation
 
-# 1. Go to chrome://extensions/
+1. Go to chrome://extensions/
 
-# 2. Turn on developer mode
+2. Turn on developer mode
 
-# 3. Load unpacked
+3. Load unpacked
 
-# 4. Open a new tab
+4. Open a new tab
 
   
 
@@ -51,23 +51,27 @@ ROBOFLOW_API_KEY="YOUR_ROBOFLOW_KEY_HERE"
 
 If you to submit this as a public chrome extension in the store:
 
-# 1. Add a ROBOFLOW_API_KEY in content.js
+1. Add a ROBOFLOW_API_KEY in content.js
 
-# 2. Generate Icons for Chrome Extension
-Put in a 128x128 image in the images folder and call it icon128.png
+2. Generate Icons for Chrome Extension
+ - a. Put in a 128x128 image in the images folder and call it icon128.png
+
+- b.
 ```
 python3 -m venv .venv
 source .venv/bin/activate
 pip install Pillow 
 python3 generateIcons.py images/icon128.png
 ```
-Then put all images in the images folder.
+
+- c. Then put all images in the images folder.
 
   
 
 ## Included Templates
 
 Priva-see - Pauses, mutes, and blurs any media when you look away.
+
 How to use: On any tab, right click "Priva-see"
 
 
