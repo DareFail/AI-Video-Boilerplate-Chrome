@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Privasee",
+  "version": "1.0",
+  "icons": {
+    "16": "images/icon16.png",
+    "19": "images/icon19.png",
+    "32": "images/icon32.png",
+    "38": "images/icon38.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  },
+  "background": {
+    "service_worker": "js/background.js"
+  },
+  "action": {
+    "default_popup": "html/popup.html"
+  },
+  "permissions": ["activeTab", "background", "contextMenus"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["js/inferencejs.js", "js/content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [ "media/excel.png" ],
+      "matches": [ "<all_urls>" ]
+    }
+  ]
+}
