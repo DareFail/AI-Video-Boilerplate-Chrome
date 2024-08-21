@@ -5,20 +5,40 @@ var bounding_box_colors = {};
 
 var user_confidence = 0.6;
 var confidence_threshold = 0.1;
-var model_name = "gaze";
-var model_version = 1;
+var model_name = "rock-paper-scissors-sxsw";
+var model_version = 11;
+var model_type = "pushups";
+var video;
+var video_camera;
 
-var lastX = 0;
-var lastY = 0;
+// Pushups
+var countPushup = 0;
+var currentStatusPushup = "nothing"
 
-var lastX2 = 0;
-var lastY2 = 0;
+const verifyTimesPushup = 10;
+var currentVerifyPushup = 0;
+var newStatusPushup = "nothing";
+const shoulderOffset = 0;
+
+// Situps
+var countSitup = 0;
+var currentStatusSitup = "nothing"
+
+const verifyTimesSitup = 10;
+var currentVerifySitup = 0;
+var newStatusSitup = "nothing";
+
+// Squats
+var countSquat = 0;
+var currentStatusSquat = "squat-up"
+
+const verifyTimesSquat = 10;
+var currentVerifySquat = 0;
+var newStatusSquat = "squat-up";
+
+
 
 var shouldMirrorVideo = true;
-var filterStrength = 0.91;
-var sensitivity = 25;
-var verticalOffset = -1;
-var dotSize = 5;
 
 // Update the colors in this list to set the bounding box colors
 var color_choices = [
@@ -39,103 +59,240 @@ var color_choices = [
 var canvas_painted = false;
 var canvas;
 var ctx;
-var circle = document.createElement('div');
-      
+
+var canvas_input;
+var ctx_input;
+
 const inferEngine = new inferencejs.InferenceEngine();
 var modelWorkerId = null;
-var publishable_key = "ROBOFLOW";
+const publishable_key = "ROBOFLOW";
+var drawingSelected = false;
 
+let poseLandmarker = undefined
+let runningMode = "IMAGE"
+
+let lastVideoTime = -1
+
+const POSE_CONNECTIONS_PUSHUP = [
+  {
+      "start": 0,
+      "end": 1
+  },
+  {
+      "start": 0,
+      "end": 2
+  },
+  {
+      "start": 2,
+      "end": 4
+  },
+  {
+      "start": 1,
+      "end": 3
+  },
+  {
+      "start": 3,
+      "end": 5
+  },
+  {
+      "start": 0,
+      "end": 6
+  },
+  {
+      "start": 1,
+      "end": 7
+  },
+  {
+      "start": 6,
+      "end": 7
+  },
+  {
+      "start": 6,
+      "end": 8
+  },
+  {
+      "start": 7,
+      "end": 8
+  },
+  {
+      "start": 8,
+      "end": 10
+  },
+  {
+      "start": 9,
+      "end": 11
+  },
+]
+
+
+const POSE_CONNECTIONS_SITUP = [
+  {
+      "start": 0,
+      "end": 1
+  },
+  {
+      "start": 0,
+      "end": 2
+  },
+  {
+      "start": 1,
+      "end": 3
+  },
+  {
+      "start": 2,
+      "end": 3
+  },
+  {
+      "start": 2,
+      "end": 4
+  },
+  {
+      "start": 4,
+      "end": 6
+  },
+  {
+      "start": 3,
+      "end": 5
+  },
+  {
+      "start": 5,
+      "end": 7
+  },
+]
+
+
+const POSE_CONNECTIONS_SQUAT = [
+  {
+      "start": 0,
+      "end": 1
+  },
+  {
+      "start": 0,
+      "end": 2
+  },
+  {
+      "start": 1,
+      "end": 3
+  },
+  {
+      "start": 2,
+      "end": 3
+  },
+  {
+      "start": 2,
+      "end": 4
+  },
+  {
+      "start": 4,
+      "end": 6
+  },
+  {
+      "start": 6,
+      "end": 8
+  },
+  {
+      "start": 8,
+      "end": 10
+  },
+  {
+      "start": 6,
+      "end": 10
+  },
+  {
+      "start": 3,
+      "end": 5
+  },
+  {
+      "start": 5,
+      "end": 7
+  },
+  {
+      "start": 7,
+      "end": 9
+  },
+  {
+      "start": 9,
+      "end": 11
+  },
+  {
+      "start": 11,
+      "end": 7
+  },
+]
 
 
 chrome.runtime.onMessage.addListener((request) => {
   if (request.command === "start") {
 
-    if (modal !== null) {
-      modal.style.display = 'block';
-      modal.style.visibility = "visible";
-    }
-    else {
-      createRightSideModal();
+    createRightSideModal();
 
-      circle.style.width = '10px';
-      circle.style.height = '10px';
-      circle.style.background = 'red';
-      circle.style.borderRadius = '50%';
-      circle.style.position = 'absolute';
-      circle.style.zIndex = '10000'; // Set this high to ensure it's on top
-      circle.style.left = `200px`;
-      circle.style.top = `200px`;
-      document.body.appendChild(circle);
+    navigator.mediaDevices
+    .getUserMedia({ 
+      video: { facingMode: "user" },
+      audio: false
+    })
+    .then(function(stream) {
+      mediaStream = stream;
+  
+      video_camera = document.createElement("video");
+      video_camera.srcObject = stream;
 
-      canvas = document.getElementById("video_canvas");
-      ctx= canvas.getContext("2d");
+      video_camera.onloadedmetadata = function() {
+        video_camera.play();
+      }
 
+      video = document.createElement("video");
+      var canvasStream = canvas_input.captureStream(25);
+      video.srcObject = canvasStream;
 
-      var focusedElement = document.activeElement;
+      video.id = "webcam";
 
-      navigator.mediaDevices
-      .getUserMedia({ 
-        video: { facingMode: "environment" },
-        audio: false
-      })
-      .then(function(stream) {
-        mediaStream = stream;
-        console.log('success');
-    
-        video = document.createElement("video");
-        video.srcObject = stream;
-        video.id = "webcam";
+      // hide video until the web stream is ready
+      video.style.display = "none";
+      video.setAttribute("playsinline", "");
 
-        // hide video until the web stream is ready
-        video.style.display = "none";
-        video.setAttribute("playsinline", "");
+      document.getElementById("result_canvas").after(video);
 
-        document.getElementById("video_canvas").after(video);
+      video.onloadedmetadata = function() {
+        video.play();
+      }
 
-        video.onloadedmetadata = function() {
-          video.play();
-        }
+      // on full load, set the video height and width
+      video.onplay = function() {
+        var height = video.videoHeight;
+        var width = video.videoWidth;
 
-        // on full load, set the video height and width
-        video.onplay = function() {
-          height = video.videoHeight;
-          width = video.videoWidth;
+        // scale down video by 0.75
 
-          // scale down video by 0.75
+        video.width = width;
+        video.height = height;
+        video.style.width = 640 + "px";
+        video.style.height = 480 + "px";
 
-          video.width = width;
-          video.height = height;
-          video.style.width = 640 + "px";
-          video.style.height = 480 + "px";
+        canvas.style.width = 640 + "px";
+        canvas.style.height = 480 + "px";
+        canvas.width = width;
+        canvas.height = height;
 
-          canvas.style.width = 640 + "px";
-          canvas.style.height = 480 + "px";
-          canvas.width = width;
-          canvas.height = height;
+        document.getElementById("result_canvas").style.display = "block";
+      };
 
-          document.getElementById("video_canvas").style.display = "block";
-        };
+      ctx = canvas.getContext("2d");
+      ctx_input = canvas_input.getContext("2d");
+      ctx.scale(1, 1);
 
-        ctx.scale(1, 1);
-
-        // Load the Roboflow model using the publishable_key set in index.html
-        // and the model name and version set at the top of this file
-        inferEngine.startWorker(model_name, model_version, publishable_key, [{ scoreThreshold: confidence_threshold }])
-          .then((id) => {
-            modelWorkerId = id;
-            // Start inference
-            detectFrame();
-          });
-        
-      })
-      .catch(function(err) {
-        console.log(err);
-      });
-    }
-
-
-    
-
+      // Load the Roboflow model using the publishable_key set in index.html
+      // and the model name and version set at the top of this file
+      inferEngine.startWorker(model_name, model_version, publishable_key, [{ scoreThreshold: confidence_threshold }])
+        .then((id) => {
+          modelWorkerId = id;
+          // Start inference
+          detectFrame();
+        });
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
 
     function createRightSideModal() {
       modal = document.createElement('div');
@@ -145,6 +302,7 @@ chrome.runtime.onMessage.addListener((request) => {
       modal.style.top = '0';
       modal.style.right = '0';
       modal.style.height = '100%';
+      modal.style.width = '100%';
       modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
       modal.style.zIndex = '1';
 
@@ -154,8 +312,18 @@ chrome.runtime.onMessage.addListener((request) => {
       var inferWidgetDiv = document.createElement('div');
       inferWidgetDiv.className = 'infer-widget';
       
-      var canvas = document.createElement('canvas');
-      canvas.id = 'video_canvas';
+      canvas_input = document.createElement('canvas');
+      canvas_input.id = 'input_canvas';
+      canvas_input.style.display = "block";
+      canvas_input.style.position = "absolute";
+      canvas_input.style.zIndex = 50;
+      canvas_input.width = 640;
+      canvas_input.height = 480;
+
+      inferWidgetDiv.appendChild(canvas_input);
+
+      canvas = document.createElement('canvas');
+      canvas.id = 'result_canvas';
       canvas.width = 640;
       canvas.height = 480;
       
@@ -188,7 +356,6 @@ chrome.runtime.onMessage.addListener((request) => {
             mediaStream = null;
         }
         modal.style.display = 'none';   
-        //document.body.style.filter = 'blur(0px)';
         var element = document.getElementById("coverDiv");
         element.parentNode.removeChild(element);
 
@@ -202,15 +369,53 @@ chrome.runtime.onMessage.addListener((request) => {
       innerDiv.appendChild(hideButton);
       innerDiv.appendChild(exitButton);
       document.body.appendChild(modal);
+
     }
 
+    
     function detectFrame() {
       // On first run, initialize a canvas
       // On all runs, run inference using a video frame
       // For each video frame, draw bounding boxes on the canvas
-      if (!modelWorkerId) return requestAnimationFrame(detectFrame);
+      if (!modelWorkerId) {
+        return requestAnimationFrame(detectFrame);
+      }
     
-      inferEngine.infer(modelWorkerId, new inferencejs.CVImage(video)).then(function(predictions) {
+      if (!drawingSelected) {
+        if (shouldMirrorVideo) {
+          ctx_input.save();
+          ctx_input.scale(-1, 1);
+          ctx_input.translate(-canvas_input.width, 0);
+          ctx_input.drawImage(video_camera, 0, 0, canvas_input.width, canvas_input.height);
+          ctx_input.restore();
+        } else {
+          ctx_input.drawImage(video_camera, 0, 0, canvas_input.width, canvas_input.height);
+        }
+      }
+
+      if (!canvas_painted) {
+        var video_start = document.getElementById("webcam");
+  
+        canvas.top = video_start.top;
+        canvas.left = video_start.left;
+        canvas.style.top = video_start.top + "px";
+        canvas.style.left = video_start.left + "px";
+        canvas.style.position = "absolute";
+        canvas.style.zIndex = 100;
+        video_start.style.display = "block";
+        canvas.style.display = "absolute";
+        canvas_painted = true;
+      }
+      requestAnimationFrame(detectFrame);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+      if (video) {
+  
+        pose.send({image: video});
+        //drawBoundingBoxes(predictions, ctx)
+      }
+
+      /*inferEngine.infer(modelWorkerId, new inferencejs.CVImage(video)).then(function(predictions) {
     
         if (!canvas_painted) {
           var video_start = document.getElementById("webcam");
@@ -220,219 +425,372 @@ chrome.runtime.onMessage.addListener((request) => {
           canvas.style.top = video_start.top + "px";
           canvas.style.left = video_start.left + "px";
           canvas.style.position = "absolute";
+          canvas.style.zIndex = 100;
           video_start.style.display = "block";
           canvas.style.display = "absolute";
           canvas_painted = true;
     
+          var loading = document.getElementById("loading");
+          loading.style.display = "none";
+          document.getElementById("videoSource").style.display = "none";
+          document.getElementById("infer-widget").style.display = "block";
         }
         requestAnimationFrame(detectFrame);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-        if (shouldMirrorVideo) {
-          ctx.save();  // save the current state
-          ctx.scale(-1, 1); // flip x axis
-          ctx.translate(-video.width, 0); // translate the x axis
-          ctx.drawImage(video, 0, 0); 
-          ctx.restore();
-        }
-    
         if (video) {
     
-          drawBoundingBoxes(predictions, ctx)
+          //drawBoundingBoxes(predictions, ctx)
         }
-      });
+      });*/
     }
     
     function drawBoundingBoxes(predictions, ctx) {
-      for (var i = 0; i < predictions.length; i++) {
-        var confidence = predictions[i].confidence;
+
+
+      if (model_type == "pushups") {
     
-        //console.log(user_confidence)
-    
-        if (confidence < user_confidence) {
-          continue
+        if (runningMode === "IMAGE") {
+          runningMode = "VIDEO"
+          poseLandmarker.setOptions({ runningMode: "VIDEO" })
+        }
+        let startTimeMs = performance.now()
+        if (lastVideoTime !== video.currentTime) {
+          lastVideoTime = video.currentTime
+          poseLandmarker.detectForVideo(video, startTimeMs, result => {
+            for (const landmark of result.landmarks) {
+              landmark.splice(0, 11);
+              landmark.splice(6, 7);
+              landmark.splice(11);
+              var newLandmark = landmark;
+              drawLandmarks(ctx, newLandmark)          
+              
+              if (currentStatusPushup != "nothing" && (newLandmark[2].y < newLandmark[0].y || newLandmark[2].y < newLandmark[1].y || newLandmark[3].y < newLandmark[0].y || newLandmark[3].y < newLandmark[1].y)) {
+                drawConnectors(ctx, newLandmark, POSE_CONNECTIONS_PUSHUP, { color: "#00FF00", lineWidth: 5 })
+                if (currentVerifyPushup >= verifyTimesPushup && currentStatusPushup == "push-downs") {
+                  countPushup = countPushup + 1;
+                  document.getElementById("pushupCount").innerHTML = countPushup;
+                  currentStatusPushup = "push-ups";
+                } else if(newStatusPushup == "push-ups") {
+                  currentVerifyPushup = currentVerifyPushup + 1;
+                } else {
+                  currentVerifyPushup = 0;
+                  newStatusPushup = "push-ups";
+                }
+              } else if (currentStatusPushup == "nothing" && (newLandmark[2].y > (newLandmark[0].y + shoulderOffset) || newLandmark[2].y > (newLandmark[1].y + shoulderOffset) || newLandmark[3].y > (newLandmark[0].y + shoulderOffset) || newLandmark[3].y > (newLandmark[1].y + shoulderOffset))) {
+                drawConnectors(ctx, newLandmark, POSE_CONNECTIONS_PUSHUP, { color: "#FFFFFF", lineWidth: 5 })
+                currentStatusPushup = "push-downs";
+              } else {
+                drawConnectors(ctx, newLandmark, POSE_CONNECTIONS_PUSHUP, { color: "#FFFFFF", lineWidth: 5 })
+                if (currentVerifyPushup >= verifyTimesPushup && currentStatusPushup == "push-ups") {
+                  currentStatusPushup = "push-downs";
+                } else if(newStatusPushup == "push-downs") {
+                  currentVerifyPushup = currentVerifyPushup + 1;
+                } else {
+                  currentVerifyPushup = 0;
+                  newStatusPushup = "push-downs";
+                }
+              }
+            }
+          })
         }
     
-        if (predictions[i].class in bounding_box_colors) {
-          ctx.strokeStyle = bounding_box_colors[predictions[i].class];
-        } else {
-          var color =
-            color_choices[Math.floor(Math.random() * color_choices.length)];
-          ctx.strokeStyle = color;
-          // remove color from choices
-          color_choices.splice(color_choices.indexOf(color), 1);
-    
-          bounding_box_colors[predictions[i].class] = color;
-        }
-    
-        var prediction = predictions[i];
-    
-        var gazeCoords = estimateCanvasCoordinates(prediction.leftEye.x, prediction.leftEye.y, prediction.pitch, prediction.yaw)
-        
-        
-        if (gazeCoords != "NONE") {
-          lastX2 = gazeCoords.x;
-          lastY2 = gazeCoords.y + 300;
-
-          var circle = document.createElement('div');
-          circle.style.width = '10px';
-          circle.style.height = '10px';
-          circle.style.background = 'red';
-          circle.style.borderRadius = '50%';
-          circle.style.position = 'absolute';
-          circle.style.zIndex = '10000'; // Set this high to ensure it's on top
-          circle.style.left = `200px`;
-          circle.style.top = `200px`;
-          document.body.appendChild(circle);
-        }
-
-        circle.style.left = `${gazeCoords.x}px`;
-        circle.style.top = `${gazeCoords.y + 300}px`;
-        
-
-    
-    
-        if (gazeCoords == "NONE") {
-          //document.body.style.filter = 'blur(20px)';
-
-          var coverDiv = document.getElementById("coverDiv");
-          if(coverDiv) {
-            coverDiv.style.display = 'block';
+        for (var i = 0; i < predictions.length && i < 1; i++) {
+          var confidence = predictions[i].confidence;
+      
+          if (confidence < user_confidence) {
+            continue;
+          }
+      
+          if (predictions[i].class in bounding_box_colors) {
+            ctx.strokeStyle = bounding_box_colors[predictions[i].class];
           } else {
-            console.log("click: " + lastX2 + ", " + lastY2);
-            let element = document.elementFromPoint(lastX2, lastY2);
-            if(element) {
-                console.log("found element");
-                element.click();
-            }
-            /*var div = document.createElement("div");
-            div.id = "coverDiv";
-            var img = document.createElement("img");
-            img.src = chrome.runtime.getURL("media/excel.png");
-
-            // set the image styles including width and height
-            img.style.width = "100%";
-            img.style.height = "100%";
-            img.style.position = "fixed";
-            // set position of the image in the div
-            img.style.left = "0";
-            img.style.top = "0";
-            img.style.zIndex = "9999";
-
-            // add image as a child to div
-            div.appendChild(img);
-
-            // add div as a child to body
-            document.body.appendChild(div);*/
-
+            var color =
+              color_choices[Math.floor(Math.random() * color_choices.length)];
+            ctx.strokeStyle = color;
+            // remove color from choices
+            color_choices.splice(color_choices.indexOf(color), 1);
+            
+            bounding_box_colors[predictions[i].class] = color;
           }
-
-          chrome.runtime.sendMessage({command: "muteTab"});
-
-          const audios = document.getElementsByTagName('audio');
-          for (let i = 0; i < audios.length; i++) {
-            if (!audios[i].paused) {
-              audios[i].pause();
-            }
-          }
-       
-          const videos = document.getElementsByTagName('video');
-          for (let i = 0; i < videos.length; i++) {
-            if (!videos[i].paused && videos[i].id != "webcam") {
-              videos[i].pause();
-            }
-          }
-        }
-        else {
-          ctx.beginPath();
-          ctx.arc(gazeCoords.x, gazeCoords.y, dotSize, 0, 2 * Math.PI, false);
-          ctx.fillStyle = 'red';
+      
+          var prediction = predictions[i];
+          var x = prediction.bbox.x - prediction.bbox.width / 2;
+          var y = prediction.bbox.y - prediction.bbox.height / 2;
+          var width = prediction.bbox.width;
+          var height = prediction.bbox.height;
+      
+          ctx.rect(x, y, width, height);
+          ctx.fillStyle = "rgba(0, 0, 0, 0)";
           ctx.fill();
-          ctx.lineWidth = 1;
-          ctx.strokeStyle = 'red';
-          ctx.stroke();
-
-          //document.body.style.filter = 'blur(0px)';
-          var coverDiv = document.getElementById("coverDiv");
-          if(coverDiv) {
-            coverDiv.style.display = 'none';
-          }
-
-
-          chrome.runtime.sendMessage({command: "unmuteTab"});
-
-          const audios = document.getElementsByTagName('audio');
-          for (let i = 0; i < audios.length; i++) {
-            if (audios[i].paused) {
-              audios[i].play();
+          ctx.fillStyle = ctx.strokeStyle;
+          ctx.lineWidth = "4";
+          
+          ctx.strokeRect(x, y, width, height);
+          
+          // Text stays the same regardless of mirroring
+          ctx.font = "25px Arial";
+          ctx.fillText(prediction.class + " " + Math.round(confidence * 100) + "%", x, y - 10);
+    
+          
+      
+      
+    
+        }
+      } else if (model_type == "situps") {
+    
+        if (runningMode === "IMAGE") {
+          runningMode = "VIDEO"
+          poseLandmarker.setOptions({ runningMode: "VIDEO" })
+        }
+        let startTimeMs = performance.now()
+        if (lastVideoTime !== video.currentTime) {
+          lastVideoTime = video.currentTime
+          poseLandmarker.detectForVideo(video, startTimeMs, result => {
+            for (const landmark of result.landmarks) {
+              landmark.splice(0, 11)
+              landmark.splice(2, 10);
+              landmark.splice(7);
+              var newLandmark = landmark;
+              drawLandmarks(ctx, newLandmark)
+              
+              if (currentStatusSitup != "nothing" && (newLandmark[0].y < newLandmark[4].y || newLandmark[0].y < newLandmark[5].y || newLandmark[1].y < newLandmark[4].y || newLandmark[1].y < newLandmark[5].y)) {
+                drawConnectors(ctx, newLandmark, POSE_CONNECTIONS_SITUP, { color: "#00FF00", lineWidth: 5 })
+                if (currentVerifySitup >= verifyTimesSitup && currentStatusSitup == "sit-down") {
+                  countSitup = countSitup + 1;
+                  document.getElementById("situpCount").innerHTML = countSitup;
+                  currentStatusSitup = "sit-up";
+                } else if(newStatusSitup == "sit-up") {
+                  currentVerifySitup = currentVerifySitup + 1;
+                } else {
+                  currentVerifySitup = 0;
+                  newStatusSitup = "sit-up";
+                }
+              } else if (currentStatusSitup == "nothing" && (newLandmark[0].y > newLandmark[4].y || newLandmark[0].y > newLandmark[5].y || newLandmark[1].y > newLandmark[4].y || newLandmark[1].y > newLandmark[5].y)) {
+                drawConnectors(ctx, newLandmark, POSE_CONNECTIONS_SITUP, { color: "#FFFFFF", lineWidth: 5 })
+                currentStatusSitup = "sit-down";
+              } else {
+                drawConnectors(ctx, newLandmark, POSE_CONNECTIONS_SITUP, { color: "#FFFFFF", lineWidth: 5 })
+                if (currentVerifySitup >= verifyTimesSitup && currentStatusSitup == "sit-up") {
+                  currentStatusSitup = "sit-down";
+                } else if(newStatusSitup == "sit-down") {
+                  currentVerifySitup = currentVerifySitup + 1;
+                } else {
+                  currentVerifySitup = 0;
+                  newStatusSitup = "sit-down";
+                }
+              }
             }
+          })
+        }
+    
+    
+        let filteredPredictions = predictions.filter(prediction => prediction.class.toLowerCase().includes("sit"));
+    
+        for (var i = 0; i < filteredPredictions.length && i < 1; i++) {
+    
+          var confidence = filteredPredictions[i].confidence;
+      
+          if (confidence < user_confidence) {
+            continue;
           }
-       
-          const videos = document.getElementsByTagName('video');
-          for (let i = 0; i < videos.length; i++) {
-            if (videos[i].paused && videos[i].id != "webcam") {
-              videos[i].play();
-            }
+      
+          if (filteredPredictions[i].class in bounding_box_colors) {
+            ctx.strokeStyle = bounding_box_colors[filteredPredictions[i].class];
+          } else {
+            var color =
+              color_choices[Math.floor(Math.random() * color_choices.length)];
+            ctx.strokeStyle = color;
+            // remove color from choices
+            color_choices.splice(color_choices.indexOf(color), 1);
+            
+            bounding_box_colors[filteredPredictions[i].class] = color;
           }
+      
+          var prediction = filteredPredictions[i];
+          var x = prediction.bbox.x - prediction.bbox.width / 2;
+          var y = prediction.bbox.y - prediction.bbox.height / 2;
+          var width = prediction.bbox.width;
+          var height = prediction.bbox.height;
+      
+          ctx.rect(x, y, width, height);
+          ctx.fillStyle = "rgba(0, 0, 0, 0)";
+          ctx.fill();
+          ctx.fillStyle = ctx.strokeStyle;
+          ctx.lineWidth = "4";
+          
+          ctx.strokeRect(x, y, width, height);
+          
+          // Text stays the same regardless of mirroring
+          ctx.font = "25px Arial";
+          ctx.fillText(prediction.class + " " + Math.round(confidence * 100) + "%", x, y - 10);
     
         }
     
+      } else if (model_type == "squats") {
+      
+          if (runningMode === "IMAGE") {
+            runningMode = "VIDEO"
+            poseLandmarker.setOptions({ runningMode: "VIDEO" })
+          }
+          let startTimeMs = performance.now()
+          if (lastVideoTime !== video.currentTime) {
+            lastVideoTime = video.currentTime
+            poseLandmarker.detectForVideo(video, startTimeMs, result => {
+              for (const landmark of result.landmarks) {
+                landmark.splice(0, 11)
+                landmark.splice(2, 10);
+                var newLandmark = landmark;
+                drawLandmarks(ctx, newLandmark)
+    
+    
+                if (newLandmark[2].y > newLandmark[4].y || newLandmark[2].y > newLandmark[5].y || newLandmark[3].y > newLandmark[4].y || newLandmark[3].y > newLandmark[5].y) {
+                  drawConnectors(ctx, newLandmark, POSE_CONNECTIONS_SQUAT, { color: "#00FF00", lineWidth: 5 })
+                  if (currentVerifySquat >= verifyTimesSquat && currentStatusSquat == "squat-down") {
+                    countSquat = countSquat + 1;
+                    document.getElementById("squatCount").innerHTML = countSquat;
+                    currentStatusSquat = "squat-up";
+                  } else if(newStatusSquat == "squat-up") {
+                    currentVerifySquat = currentVerifySquat + 1;
+                  } else {
+                    currentVerifySquat = 0;
+                    newStatusSquat = "squat-up";
+                  }
+                } else {
+                  drawConnectors(ctx, newLandmark, POSE_CONNECTIONS_SQUAT, { color: "#FFFFFF", lineWidth: 5 })
+                  if (currentVerifySquat >= verifyTimesSquat && currentStatusSquat == "squat-up") {
+                    currentStatusSquat = "squat-down";
+                  } else if(newStatusSquat == "squat-down") {
+                    currentVerifySquat = currentVerifySquat + 1;
+                  } else {
+                    currentVerifySquat = 0;
+                    newStatusSquat = "squat-down";
+                  }
+                }
+              }
+            })
+          }
+    
+          let filteredPredictions = predictions.filter(prediction => prediction.class.toLowerCase().includes("squat"));
+    
+          for (var i = 0; i < filteredPredictions.length && i < 1; i++) {
+            var confidence = filteredPredictions[i].confidence;
+        
+            if (confidence < user_confidence) {
+              continue;
+            }
+        
+            if (filteredPredictions[i].class in bounding_box_colors) {
+              ctx.strokeStyle = bounding_box_colors[filteredPredictions[i].class];
+            } else {
+              var color =
+                color_choices[Math.floor(Math.random() * color_choices.length)];
+              ctx.strokeStyle = color;
+              // remove color from choices
+              color_choices.splice(color_choices.indexOf(color), 1);
+              
+              bounding_box_colors[filteredPredictions[i].class] = color;
+            }
+        
+            var prediction = filteredPredictions[i];
+            var x = prediction.bbox.x - prediction.bbox.width / 2;
+            var y = prediction.bbox.y - prediction.bbox.height / 2;
+            var width = prediction.bbox.width;
+            var height = prediction.bbox.height;
+        
+            ctx.rect(x, y, width, height);
+            ctx.fillStyle = "rgba(0, 0, 0, 0)";
+            ctx.fill();
+            ctx.fillStyle = ctx.strokeStyle;
+            ctx.lineWidth = "4";
+            
+            ctx.strokeRect(x, y, width, height);
+            
+            // Text stays the same regardless of mirroring
+            ctx.font = "25px Arial";
+            ctx.fillText(prediction.class + " " + Math.round(confidence * 100) + "%", x, y - 10);
+        }
+    
       }
+    
     }
 
-    function estimateCanvasCoordinates(eyeX, eyeY, pitch, yaw) {
+    function changeModel(modelName) {
 
-      var canvas = document.getElementById("video_canvas");
-      var canvasHeight = canvas.offsetHeight;
-      var canvasWidth = canvas.offsetWidth;
-    
-      if (verticalOffset == -1) {
-        verticalOffset = eyeY * canvasHeight;
-        //document.getElementById("verticalOffset").value = verticalOffset;
-      }
-      // Adjust pitch and yaw based on sensitivity
-      pitch *= sensitivity;
-      yaw *= sensitivity;
-      
-      // Map adjusted pitch and yaw to coordinates
-      var canvasX = (yaw / Math.PI / 2 + 0.5) * canvasWidth;
-      var canvasY = (-pitch / Math.PI / 2 + 0.5) * canvasHeight - verticalOffset;
-    
-      // Apply simple filter to smooth out jitter
-      canvasX = lastX * filterStrength + (1 - filterStrength) * canvasX;
-      canvasY = lastY * filterStrength + (1 - filterStrength) * canvasY;
-      
-      // Save the current coordinates for the next frame
-      lastX = canvasX;
-      lastY = canvasY;
-      
-      if (canvasX > canvasWidth) {
-        lastX = canvasWidth + 10;
-        return "NONE";
-      }
-      else if (canvasX < 0) {
-        lastX = -10;
-        return "NONE";
-      }
-      else if (canvasY > canvasHeight) {
-        lastY = canvasHeight + 10;
-        return "NONE";
-      }
-      else if (canvasY < 0) {
-        lastY = -10;
-        return "NONE";
+      if (modelName == "pushup") {
+        model_type = "pushups";
+        document.getElementById("pushupCountContainer").style.display = "block";
+        document.getElementById("situpCountContainer").style.display = "none";
+        document.getElementById("squatCountContainer").style.display = "none";
+        model_name = "push-up-ditection";
+        model_version = 3;
+      } else if (modelName == "situp") {
+        model_type = "situps";
+        document.getElementById("pushupCountContainer").style.display = "none";
+        document.getElementById("situpCountContainer").style.display = "block";
+        document.getElementById("squatCountContainer").style.display = "none";
+        model_name = "p-s-s";
+        model_version = 1;
+      } else if (modelName == "squat") {
+        model_type = "squats";
+        document.getElementById("pushupCountContainer").style.display = "none";
+        document.getElementById("situpCountContainer").style.display = "none";
+        document.getElementById("squatCountContainer").style.display = "block";
+        model_name = "p-s-s";
+        model_version = 1;
+        
       }
     
-      return {x: canvasX, y: canvasY};
     }
 
+    function onResultsPose(results) {
+      document.body.classList.add('loaded');
+      fpsControl.tick();
+    
+      canvasCtx5.save();
+      canvasCtx5.clearRect(0, 0, out5.width, out5.height);
+      canvasCtx5.drawImage(
+          results.image, 0, 0, out5.width, out5.height);
+      drawConnectors(
+          canvasCtx5, results.poseLandmarks, POSE_CONNECTIONS, {
+            color: (data) => {
+              const x0 = out5.width * data.from.x;
+              const y0 = out5.height * data.from.y;
+              const x1 = out5.width * data.to.x;
+              const y1 = out5.height * data.to.y;
+    
+              const z0 = clamp(data.from.z + 0.5, 0, 1);
+              const z1 = clamp(data.to.z + 0.5, 0, 1);
+    
+              const gradient = canvasCtx5.createLinearGradient(x0, y0, x1, y1);
+              gradient.addColorStop(
+                  0, `rgba(0, ${255 * z0}, ${255 * (1 - z0)}, 1)`);
+              gradient.addColorStop(
+                  1.0, `rgba(0, ${255 * z1}, ${255 * (1 - z1)}, 1)`);
+              return gradient;
+            }
+          });
+      drawLandmarks(
+          canvasCtx5,
+          Object.values(POSE_LANDMARKS_LEFT)
+              .map(index => results.poseLandmarks[index]),
+          {color: zColor, fillColor: '#FF0000'});
+      drawLandmarks(
+          canvasCtx5,
+          Object.values(POSE_LANDMARKS_RIGHT)
+              .map(index => results.poseLandmarks[index]),
+          {color: zColor, fillColor: '#00FF00'});
+      drawLandmarks(
+          canvasCtx5,
+          Object.values(POSE_LANDMARKS_NEUTRAL)
+              .map(index => results.poseLandmarks[index]),
+          {color: zColor, fillColor: '#AAAAAA'});
+      canvasCtx5.restore();
+    }
+
+    /*const pose = new Pose({locateFile: (file) => {
+      return `./mediapipe/pose/${file}`;
+    }});
+    pose.onResults(onResultsPose);*/
   }
 });
-
-
-function changeMirror () {
-  //shouldMirrorVideo = document.getElementById("mirror").checked;
-}
-
-
-
