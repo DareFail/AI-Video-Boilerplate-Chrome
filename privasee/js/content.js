@@ -43,7 +43,7 @@ var circle = document.createElement('div');
       
 const inferEngine = new inferencejs.InferenceEngine();
 var modelWorkerId = null;
-var publishable_key = "ROBOFLOW_API_KEY";
+var publishable_key = "ROBOFLOW";
 
 
 
@@ -270,7 +270,7 @@ chrome.runtime.onMessage.addListener((request) => {
         var gazeCoords = estimateCanvasCoordinates(prediction.leftEye.x, prediction.leftEye.y, prediction.pitch, prediction.yaw)
         
         
-        if (gazeCoords != "NONE") {
+        /*if (gazeCoords != "NONE") {
           lastX2 = gazeCoords.x;
           lastY2 = gazeCoords.y + 300;
 
@@ -287,7 +287,7 @@ chrome.runtime.onMessage.addListener((request) => {
         }
 
         circle.style.left = `${gazeCoords.x}px`;
-        circle.style.top = `${gazeCoords.y + 300}px`;
+        circle.style.top = `${gazeCoords.y + 300}px`;*/
         
 
     
@@ -299,13 +299,13 @@ chrome.runtime.onMessage.addListener((request) => {
           if(coverDiv) {
             coverDiv.style.display = 'block';
           } else {
-            console.log("click: " + lastX2 + ", " + lastY2);
+            /*console.log("click: " + lastX2 + ", " + lastY2);
             let element = document.elementFromPoint(lastX2, lastY2);
             if(element) {
                 console.log("found element");
                 element.click();
-            }
-            /*var div = document.createElement("div");
+            }*/
+            var div = document.createElement("div");
             div.id = "coverDiv";
             var img = document.createElement("img");
             img.src = chrome.runtime.getURL("media/excel.png");
@@ -323,7 +323,7 @@ chrome.runtime.onMessage.addListener((request) => {
             div.appendChild(img);
 
             // add div as a child to body
-            document.body.appendChild(div);*/
+            document.body.appendChild(div);
 
           }
 

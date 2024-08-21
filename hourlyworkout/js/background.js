@@ -14,10 +14,18 @@ chrome.contextMenus.onClicked.addListener(function (info, tab) {
   }
 });
 
-chrome.runtime.onMessage.addListener(function(request, sender) {
-  if (request.command === "muteTab") {
-    chrome.tabs.update(sender.tab.id, {muted: true});
-  } else if (request.command === "unmuteTab") {
-    chrome.tabs.update(sender.tab.id, {muted: false});
+
+chrome.runtime.onInstalled.addListener(() => {
+  // create alarm after extension is installed / upgraded
+  chrome.alarms.create("hourlyAlarm", {
+    periodInMinutes: 60,
+  });
+});
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "hourlyAlarm") {
+    chrome.tabs.sendMessage(tab.id, {
+      command: "start"
+    });
   }
 });

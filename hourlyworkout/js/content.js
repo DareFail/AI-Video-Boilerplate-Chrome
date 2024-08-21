@@ -43,7 +43,7 @@ var circle = document.createElement('div');
       
 const inferEngine = new inferencejs.InferenceEngine();
 var modelWorkerId = null;
-var publishable_key = "ROBOFLOW_API_KEY";
+var publishable_key = "ROBOFLOW";
 
 
 
