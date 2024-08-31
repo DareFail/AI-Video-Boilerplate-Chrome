@@ -5,6 +5,11 @@
 There are more live video boilerplates at: [https://github.com/DareFail/AI-Video-Boilerplate-Simple](https://github.com/DareFail/AI-Video-Boilerplate-Simple)
 
 
+## Published:
+
+- **Privasee**: Cover your browser with a fake excel image when you look away [https://chromewebstore.google.com/detail/privasee/kecneekngknmbomkiehccbjkhjgaaedn](https://chromewebstore.google.com/detail/privasee/kecneekngknmbomkiehccbjkhjgaaedn)
+
+
 ## Features
 
 -  **Frontend**: Plain Javascript
