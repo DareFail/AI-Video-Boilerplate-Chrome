@@ -115,4 +115,4 @@ Youtube: [How to Video coming soon](https://www.youtube.com/@darefail)
 
   
 
-Project Link: [https://github.com/DareFail/AI-Video-Boilerplate-Simple](https://github.com/DareFail/AI-Video-Boilerplate-Simple)
+Project Link: [https://github.com/DareFail/AI-Video-Boilerplate-Chrome](https://github.com/DareFail/AI-Video-Boilerplate-Chrome)
