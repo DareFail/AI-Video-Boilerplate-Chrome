@@ -21,18 +21,14 @@
     {
       "matches": ["<all_urls>"],
       "js": [
-        "js/camera_utils.js",
-        "js/control_utils.js",
-        "js/drawing_utils.js",
-        "js/pose.js",
         "js/inferencejs.js",
-        "js/content.js"
+        "js/try.js"
       ]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": [],
+      "resources": [ "js/wasm/*", "js/pose_landmarker_lite.task"  ],
       "matches": [ "<all_urls>" ]
     }
   ]

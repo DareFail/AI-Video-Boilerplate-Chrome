@@ -5,8 +5,8 @@ var bounding_box_colors = {};
 
 var user_confidence = 0.6;
 var confidence_threshold = 0.1;
-var model_name = "rock-paper-scissors-sxsw";
-var model_version = 11;
+var model_name = "push-up-ditection";
+var model_version = 3;
 var model_type = "pushups";
 var video;
 var video_camera;
@@ -224,6 +224,21 @@ const POSE_CONNECTIONS_SQUAT = [
 chrome.runtime.onMessage.addListener((request) => {
   if (request.command === "start") {
 
+    const createPoseLandmarker = async () => {
+      const vision = await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+      )
+      poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task`,
+          delegate: "GPU"
+        },
+        runningMode: runningMode,
+        numPoses: 2
+      })
+    }
+    createPoseLandmarker()
+
     createRightSideModal();
 
     navigator.mediaDevices
@@ -306,7 +321,7 @@ chrome.runtime.onMessage.addListener((request) => {
       modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
       modal.style.zIndex = '1';
 
-      innerDiv = document.createElement('div');
+      var innerDiv = document.createElement('div');
       innerDiv.style.textAlign = 'center';
 
       var inferWidgetDiv = document.createElement('div');
@@ -411,7 +426,6 @@ chrome.runtime.onMessage.addListener((request) => {
   
       if (video) {
   
-        pose.send({image: video});
         //drawBoundingBoxes(predictions, ctx)
       }
 
@@ -787,10 +801,5 @@ chrome.runtime.onMessage.addListener((request) => {
           {color: zColor, fillColor: '#AAAAAA'});
       canvasCtx5.restore();
     }
-
-    /*const pose = new Pose({locateFile: (file) => {
-      return `./mediapipe/pose/${file}`;
-    }});
-    pose.onResults(onResultsPose);*/
   }
 });
