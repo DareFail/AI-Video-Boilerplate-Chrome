@@ -5,7 +5,7 @@ from PIL import Image
 from PIL import ImageOps
 
 def usage():
-    print('usage: python3 generateIcon.py <src_image>')
+    print('usage: python3 generateIcons.py <src_image>')
 
 
 def main(filename):

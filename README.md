@@ -9,6 +9,9 @@ There are more live video boilerplates at: [https://github.com/DareFail/AI-Video
 
 - **Privasee**: Cover your browser with a fake excel image when you look away [https://chromewebstore.google.com/detail/privasee/kecneekngknmbomkiehccbjkhjgaaedn](https://chromewebstore.google.com/detail/privasee/kecneekngknmbomkiehccbjkhjgaaedn)
 
+- **AdPopper**: Turn all your boring ads back into popups as they should be
+
+
 
 ## Features
 
@@ -26,19 +29,6 @@ There are more live video boilerplates at: [https://github.com/DareFail/AI-Video
 This is a template for Chrome Extensions that uses live AI video on your webcam, desktop, and browser tabs.
   
 
-### Prerequisites
-
-  
-
-1. Get a free API key from [Roboflow](https://roboflow.com/) to use their vision models.
-
-2. Replace "ROBOFLOW_API_KEY" in content.js
-
-```
-
-publishable_key="YOUR_ROBOFLOW_KEY_HERE"
-
-```
 
 ### Installation
 
@@ -80,12 +70,19 @@ python3 generateIcons.py images/icon128.png
 
 - Then put all images in the images folder.
 
-  
 
-## Included Templates
 
-Privasee: Pauses, mutes, and blurs any media when you look away.
-- How to use: On any tab, right click "Priva-see"
+### Prerequisites (for Privasee)
+
+1. Get a free API key from [Roboflow](https://roboflow.com/) to use their vision models.
+
+2. Replace "ROBOFLOW_API_KEY" in content.js
+
+```
+
+publishable_key="YOUR_ROBOFLOW_KEY_HERE"
+
+```
 
 
 ## Acknowledgements
