@@ -34,17 +34,22 @@ This is a template for Chrome Extensions that uses live AI video on your webcam,
    <img width="169" alt="url" src="https://github.com/user-attachments/assets/6665cc6e-0434-409a-95c7-212f9be1cc9f">
 
 
-3. Turn on developer mode
+2. Turn on developer mode
 
    <img width="171" alt="developermode" src="https://github.com/user-attachments/assets/6f26110b-2990-4faa-9a79-2da5594d6e50">
 
+3. Zip the folder without useless mac files (if on mac)
+```
+find . -type f -name '.DS_Store' -delete
+zip -r XXX.zip XXX 
+```
 
 5. Load unpacked
 
    <img width="154" alt="loadunpacked" src="https://github.com/user-attachments/assets/8db2dec6-46ed-49e4-8534-5816de93ba2b">
 
 
-7. Open a new tab
+6. Open a new tab
 
   
 
