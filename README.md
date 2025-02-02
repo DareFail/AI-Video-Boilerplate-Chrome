@@ -1,9 +1,6 @@
-# AI-video-boilerplate-chrome
+# Chrome-Extension-Examples
 
-  This is a completely free Live AI Video Chrome Extension Boilerplate for you to play with.  
-
-There are more live video boilerplates at: [https://github.com/DareFail/AI-Video-Boilerplate-Simple](https://github.com/DareFail/AI-Video-Boilerplate-Simple)
-
+  This is a completely free Chrome Extension Examples for you to play with.  
 
 ## Published:
 
@@ -112,4 +109,4 @@ Youtube: [How to Video coming soon](https://www.youtube.com/@darefail)
 
   
 
-Project Link: [https://github.com/DareFail/AI-Video-Boilerplate-Chrome](https://github.com/DareFail/AI-Video-Boilerplate-Chrome)
+Project Link: [https://github.com/DareFail/Chrome-Extension-Examples](https://github.com/DareFail/Chrome-Extension-Examples)
